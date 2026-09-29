@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  pages: write
 
 concurrency:
   group: pages
@@ -38,3 +39,14 @@ jobs:
           git add -A
           git commit -q -m "Publish ${GITHUB_SHA::7}"
           git push -f "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+      - name: Request a Pages build and report the site status
+        continue-on-error: true
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/pages"
+          auth=(-H "Authorization: Bearer ${TOKEN}" -H "Accept: application/vnd.github+json")
+          echo "--- pages config"; curl -s "${auth[@]}" "$api"
+          echo "--- request build"; curl -s -X POST "${auth[@]}" "$api/builds"
+          sleep 20
+          echo "--- latest build"; curl -s "${auth[@]}" "$api/builds/latest"
