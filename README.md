@@ -8,6 +8,10 @@ small motion — trees, flags, fountain jets, birds and traffic.
 Everything, including the 3D assets, is produced by code in this repository. No
 Blender or other DCC tool was used.
 
+**Live:** https://abubakrmmarufov-tech.github.io/ismoili_somoni/ — deployed by
+`.github/workflows/pages.yml` on every push. Best in a recent Chrome or Edge (WebGPU);
+other browsers fall back to WebGL 2.
+
 ```
 npm install
 npm run dev          # http://localhost:5173
