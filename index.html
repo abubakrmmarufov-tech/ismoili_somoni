@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+	<meta name="theme-color" content="#050505">
+	<title>Ismoili Somoni — Dushanbe</title>
+	<meta name="description" content="A cinematic real-time WebGPU recreation of the Ismoili Somoni monument on Dousti Square, Dushanbe.">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+	<link rel="modulepreload" href="./src/main.js">
+</head>
+<body>
+	<canvas id="view" aria-label="Real-time 3D view of the Ismoili Somoni monument"></canvas>
+
+	<div id="letterbox" aria-hidden="true"><div class="bar top"></div><div class="bar bottom"></div></div>
+
+	<section id="loader" aria-live="polite">
+		<div class="loader-inner">
+			<p class="kicker">Dushanbe · Dousti Square</p>
+			<h1>Ismoili Somoni</h1>
+			<p class="native">Исмоили Сомонӣ</p>
+			<div class="progress"><div class="fill"></div></div>
+			<p class="stage">Preparing the renderer</p>
+		</div>
+	</section>
+
+	<section id="title-card" aria-hidden="true">
+		<p class="kicker">Dushanbe · Tajikistan</p>
+		<h2>Ismoili Somoni</h2>
+		<p class="sub">849 – 907 · Founder of the Samanid state</p>
+	</section>
+
+	<div id="caption" aria-live="polite"><span class="line1"></span><span class="line2"></span></div>
+
+	<nav id="controls" aria-label="Viewer controls">
+		<div class="group modes" role="group" aria-label="Camera mode">
+			<button data-mode="cinematic" class="active" title="Cinematic (C)">Cinematic</button>
+			<button data-mode="explore" title="Explore (E)">Explore</button>
+		</div>
+		<label class="time" title="Time of day in Dushanbe (T)">
+			<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>
+			<input id="time" type="range" min="6.5" max="18.6" step="0.01" value="17.4" aria-label="Time of day">
+			<output id="time-out">17:24</output>
+		</label>
+		<button id="fullscreen" class="icon" title="Fullscreen (F)" aria-label="Fullscreen">
+			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+		</button>
+		<span id="badge" title="Renderer and quality tier"></span>
+	</nav>
+
+	<p id="hint">Drag to orbit · scroll to zoom · right-drag to pan</p>
+
+	<noscript><p class="fallback">This experience needs JavaScript and a browser with WebGPU or WebGL 2.</p></noscript>
+	<script type="module" src="./src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "name": "ismoili-somoni-3d",
+  "version": "1.0.0",
+  "description": "Cinematic real-time WebGPU recreation of the Ismoili Somoni monument, Dushanbe",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "build:models": "node tools/build-models.mjs",
+    "build:textures": "node tools/build-textures.mjs",
+    "build:assets": "npm run build:models && npm run build:textures",
+    "shoot": "node tools/shoot.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abubakrmmarufov-tech/ismoili_somoni.git"
+  },
+  "bugs": {
+    "url": "https://github.com/abubakrmmarufov-tech/ismoili_somoni/issues"
+  },
+  "homepage": "https://github.com/abubakrmmarufov-tech/ismoili_somoni#readme",
+  "dependencies": {
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
+    "ktx2-encoder": "^0.6.0",
+    "meshoptimizer": "^1.3.0",
+    "playwright-core": "^1.63.0",
+    "sharp": "^0.35.5",
+    "vite": "^8.3.1"
+  },
+  "type": "module",
+  "private": true
+}
