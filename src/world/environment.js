@@ -68,7 +68,7 @@ export class Environment {
 		this.envScene.add( ground );
 		this.envTarget = null;
 
-		scene.environmentIntensity = 1.0;
+		scene.environmentIntensity = 0.6;
 
 		this.installFog();
 		this.hours = null;
@@ -131,7 +131,7 @@ export class Environment {
 
 		const { color: c, intensity } = sunLightColor( s.elevation );
 		this.sun.color.copy( c );
-		this.sun.intensity = 5.2 * intensity;
+		this.sun.intensity = 6.8 * intensity;
 		this.uSunColor.value.copy( c );
 		this.uSunIntensity.value = intensity;
 

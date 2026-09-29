@@ -23,12 +23,40 @@ export class Statue {
 	/** Resolves once the first (coarse) level is visible; finer levels continue in the background. */
 	async load() {
 
+		const custom = new URLSearchParams( location.search ).get( 'statue' );
+		if ( custom ) return this.loadCustom( custom );
 		const finest = this.quality.statueLod;
 		const levels = [ 2, 1, 0 ].filter( ( l ) => l >= finest );
 		const first = this.assets.model( `statue_lod${levels[ 0 ]}`, 1 ).then( ( s ) => this.swap( s, levels[ 0 ] ) );
 		const rest = levels.slice( 1 ).map( ( l, i ) => this.assets.model( `statue_lod${l}`, 2 + i * 3 ).then( ( s ) => this.swap( s, l ) ) );
 		await first;
 		this.ready = Promise.all( rest );
+		return this.group;
+
+	}
+
+	/**
+	 * Swaps in an external statue (e.g. a photogrammetry or image-to-3D scan):
+	 * its own PBR textures are kept, it is scaled to the real 13 m and centred on the plinth.
+	 */
+	async loadCustom( url ) {
+
+		const gltf = await this.assets.gltf.loadAsync( url );
+		const scene = gltf.scene;
+		const box = new THREE.Box3().setFromObject( scene );
+		const size = box.getSize( new THREE.Vector3() );
+		const s = 13 / size.y;
+		scene.scale.setScalar( s );
+		scene.position.set( - ( box.min.x + size.x / 2 ) * s, - box.min.y * s - LAYOUT.statueBaseOffset, - ( box.min.z + size.z / 2 ) * s );
+		scene.traverse( ( o ) => {
+
+			if ( o.isMesh ) o.castShadow = o.receiveShadow = true;
+
+		} );
+		this.group.add( scene );
+		this.current = scene;
+		this.level = 0;
+		this.ready = Promise.resolve();
 		return this.group;
 
 	}

@@ -129,9 +129,9 @@ const nichePattern = ( p ) => {
 	const d = max( abs( cellU ), abs( cellV ) );
 	const diag = abs( abs( cellU ).sub( abs( cellV ) ) );
 	const lattice = smoothstep( 0.06, 0.0, abs( d.sub( 0.36 ) ) ).max( smoothstep( 0.05, 0.0, diag ).mul( step( d, 0.36 ) ) );
-	const dado = step( v, 3.4 ); // stone dado at the foot of the niche
-	const gold = mix( float( 0.92 ), lattice.mul( 0.2 ).add( 0.8 ), float( 1 ) ).mul( dado.oneMinus() );
-	return vec2( gold, lattice.oneMinus().mul( 0.6 ).mul( dado.oneMinus() ) );
+	const dado = step( v, 3.4 ); // plain stone dado at the foot of the niche
+	const gold = lattice.mul( dado.oneMinus() );
+	return vec2( gold, lattice.mul( 0.5 ).mul( dado.oneMinus() ) );
 
 };
 
@@ -242,6 +242,49 @@ export class Monument {
 		face.translate( 0, 0, P.zFront - 0.8 );
 		this.add( face, frontMat );
 
+		// projecting frame band and archivolt: real relief so the portal models in raking light
+		const zF = P.zFront;
+		const band = [
+			box( 1.15, P.top - T - 1.1, 0.28, - HW + 0.575 + 0.6, T + 1.1, zF + 0.14 ),
+			box( 1.15, P.top - T - 1.1, 0.28, HW - 0.575 - 0.6, T + 1.1, zF + 0.14 ),
+			box( HW * 2 - 2.4, 1.15, 0.28, 0, P.top - 1.75, zF + 0.14 )
+		];
+		this.add( mergeGeometries( band ), frontMat );
+		const ring = new THREE.Shape();
+		const outline = ( offset, reverse ) => {
+
+			const pts = [];
+			pts.push( [ - N.halfWidth - offset, T + 1.1 ], [ - N.halfWidth - offset, N.spring ] );
+			const Ro = ARCH_R + offset;
+			const apex = N.spring + Math.sqrt( Ro * Ro - ARCH_C * ARCH_C );
+			for ( let i = 1; i <= 40; i ++ ) {
+
+				const y = N.spring + ( apex - N.spring ) * i / 40;
+				pts.push( [ - ( Math.sqrt( Math.max( 0, Ro * Ro - ( y - N.spring ) ** 2 ) ) - ARCH_C ), y ] );
+
+			}
+
+			for ( let i = 39; i >= 0; i -- ) {
+
+				const y = N.spring + ( apex - N.spring ) * i / 40;
+				pts.push( [ Math.sqrt( Math.max( 0, Ro * Ro - ( y - N.spring ) ** 2 ) ) - ARCH_C, y ] );
+
+			}
+
+			pts.push( [ N.halfWidth + offset, T + 1.1 ] );
+			return reverse ? pts.reverse() : pts;
+
+		};
+
+		const outer = outline( 1.2, false ), inner = outline( 0.25, true );
+		ring.moveTo( ...outer[ 0 ] );
+		for ( const p of outer.slice( 1 ) ) ring.lineTo( ...p );
+		for ( const p of inner ) ring.lineTo( ...p );
+		ring.closePath();
+		const archivolt = new THREE.ExtrudeGeometry( ring, { depth: 0.22, bevelEnabled: true, bevelThickness: 0.04, bevelSize: 0.04, bevelSegments: 2, curveSegments: 1 } );
+		archivolt.translate( 0, 0, zF );
+		this.add( archivolt, frontMat );
+
 		// block sides, back and roof (front is the portal face)
 		const depth = P.zFront - 0.8 - P.zBack;
 		const zc = ( P.zFront - 0.8 + P.zBack ) / 2;
@@ -268,11 +311,12 @@ export class Monument {
 		const cols = [];
 		const caps = [];
 		const colH = P.top - T - 1.1;
-		for ( const [ x, z, r ] of [ [ - HW, P.zFront, 0.95 ], [ HW, P.zFront, 0.95 ], [ - HW, P.zBack, 0.95 ], [ HW, P.zBack, 0.95 ] ] ) {
+		for ( const [ x, z, r ] of [ [ - HW, P.zFront, 0.72 ], [ HW, P.zFront, 0.72 ], [ - HW, P.zBack, 0.72 ], [ HW, P.zBack, 0.72 ] ] ) {
 
 			cols.push( new THREE.CylinderGeometry( r, r * 1.04, colH, 28 ).translate( x, T + 1.1 + colH / 2, z ) );
-			caps.push( new THREE.CylinderGeometry( r * 1.25, r, 0.9, 28 ).translate( x, P.top - 0.45, z ) );
+			caps.push( new THREE.CylinderGeometry( r * 1.3, r, 0.9, 28 ).translate( x, P.top - 0.45, z ) );
 			caps.push( new THREE.CylinderGeometry( r * 1.2, r * 1.2, 0.35, 28 ).translate( x, T + 1.1 + 0.175, z ) );
+			for ( let k = 1; k <= 4; k ++ ) caps.push( new THREE.CylinderGeometry( r * 1.06, r * 1.06, 0.22, 28 ).translate( x, T + 1.1 + colH * k / 5, z ) );
 
 		}
 
@@ -422,17 +466,35 @@ export class Monument {
 		const grey = greyGranite( { tint: 0x7f7b77, rough: 0.5 } );
 		this.redGranite = red;
 
-		this.add( box( 10.4, 0.45, 10.4, 0, T, 0 ), grey );
+		this.add( box( 10.0, 0.45, 10.0, 0, T, 0 ), grey );
+		const D = 6.0; // die width
 		const reds = [
-			box( 9.3, 0.45, 9.3, 0, T + 0.45, 0 ),
-			box( 7.9, 0.5, 7.9, 0, T + 0.9, 0 ),
-			box( 7.0, 5.6, 7.0, 0, T + 1.4, 0 ),
-			box( 7.8, 0.35, 7.8, 0, T + 7.0, 0 ),
-			box( 7.4, 0.3, 7.4, 0, T + 7.35, 0 )
+			box( 8.6, 0.45, 8.6, 0, T + 0.45, 0 ),
+			box( 7.4, 0.3, 7.4, 0, T + 0.9, 0 ),
+			box( 6.8, 0.2, 6.8, 0, T + 1.2, 0 ),
+			box( D, 5.6, D, 0, T + 1.4, 0 ),
+			box( 6.7, 0.18, 6.7, 0, T + 7.0, 0 ),
+			box( 7.1, 0.3, 7.1, 0, T + 7.18, 0 ),
+			box( 6.6, 0.17, 6.6, 0, T + 7.48, 0 )
 		];
 		this.add( mergeGeometries( reds ), red );
-		// fillet between die and cornice
-		this.add( box( 7.08, 0.14, 7.08, 0, T + 6.82, 0 ), this.gold );
+		// gilded fillet under the cornice and panel mouldings on each face of the die
+		const fillets = [ box( D + 0.08, 0.12, D + 0.08, 0, T + 6.84, 0 ), box( D + 0.08, 0.1, D + 0.08, 0, T + 1.5, 0 ) ];
+		const inset = 0.42, bar = 0.07, py0 = T + 1.95, py1 = T + 6.55, half = D / 2 - inset;
+		for ( let f = 0; f < 4; f ++ ) {
+
+			const rot = new THREE.Matrix4().makeRotationY( f * Math.PI / 2 );
+			const frame = [
+				new THREE.BoxGeometry( half * 2, bar, 0.05 ).translate( 0, py0, D / 2 + 0.02 ),
+				new THREE.BoxGeometry( half * 2, bar, 0.05 ).translate( 0, py1, D / 2 + 0.02 ),
+				new THREE.BoxGeometry( bar, py1 - py0, 0.05 ).translate( - half, ( py0 + py1 ) / 2, D / 2 + 0.02 ),
+				new THREE.BoxGeometry( bar, py1 - py0, 0.05 ).translate( half, ( py0 + py1 ) / 2, D / 2 + 0.02 )
+			];
+			for ( const g of frame ) fillets.push( g.applyMatrix4( rot ) );
+
+		}
+
+		this.add( mergeGeometries( fillets ), this.gold );
 
 		// lion plinths
 		const lp = [];
@@ -479,7 +541,7 @@ export class Monument {
 		m.alphaTest = 0.5;
 		// letters are cut in relief: bevel from the mask gradient
 		m.normalNode = bumpNormal( a.mul( 0.006 ) );
-		const plane = new THREE.PlaneGeometry( 6.2, 0.97 ).translate( 0, y, 3.5 + 0.006 );
+		const plane = new THREE.PlaneGeometry( 4.6, 0.72 ).translate( 0, y, 3.0 + 0.006 );
 		this.add( plane, m, false, true );
 
 	}

@@ -9,7 +9,7 @@ export default defineConfig( {
 		rollupOptions: {
 			input: { main: 'index.html' },
 			output: {
-				manualChunks: { three: [ 'three', 'three/webgpu', 'three/tsl' ] }
+				manualChunks: ( id ) => ( id.includes( 'node_modules/three' ) ? 'three' : undefined )
 			}
 		}
 	},

@@ -18,10 +18,16 @@ let jobs;
 if ( args[ 0 ] === '--batch' ) jobs = JSON.parse( fs.readFileSync( args[ 1 ], 'utf8' ) );
 else jobs = [ { url: args[ 0 ], out: args[ 1 ], width: + ( args[ 2 ] || 640 ), height: + ( args[ 3 ] || 800 ), timeout: + ( args[ 4 ] || 240000 ) } ];
 
-const server = await createServer( { configFile: 'vite.config.js', server: { port: 5199, strictPort: false }, logLevel: 'error' } );
-await server.listen();
-const port = server.config.server.port;
-const base = `http://localhost:${server.httpServer.address().port}`;
+// SHOOT_BASE=http://host:port shoots an already-served build (e.g. dist/) instead of the dev server
+let server = null;
+let base = process.env.SHOOT_BASE;
+if ( ! base ) {
+
+	server = await createServer( { configFile: 'vite.config.js', server: { port: 5199, strictPort: false }, logLevel: 'error' } );
+	await server.listen();
+	base = `http://localhost:${server.httpServer.address().port}`;
+
+}
 
 const browser = await chromium.launch( {
 	executablePath: CHROME,
@@ -58,5 +64,4 @@ for ( const job of jobs ) {
 }
 
 await browser.close();
-await server.close();
-void port;
+if ( server ) await server.close();

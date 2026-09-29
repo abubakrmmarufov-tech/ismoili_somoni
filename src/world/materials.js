@@ -48,11 +48,11 @@ export function gildedBronze( { baked = true, aged = 1, polish = 0 } = {} ) {
 	const goldVar = gold.mul( leaf.mul( 0.07 ).add( 1 ) ).mul( nMid.mul( 0.03 ).add( 1 ) );
 	const tarnish = vec3( 0.16, 0.1, 0.045 );
 	const grime = vec3( 0.05, 0.045, 0.035 );
-	let col = mix( goldVar, tarnish, dirt.mul( 0.7 ) );
+	let col = mix( goldVar, tarnish, dirt.mul( 0.55 ) );
 	col = mix( col, grime, streak.mul( 0.35 ) );
 
 	const edge = smoothstep( 0.52, 0.7, curv ); // burnished high points
-	let rough = float( 0.2 ).add( dirt.mul( 0.34 ) ).add( streak.mul( 0.12 ) ).add( leaf.abs().mul( 0.06 ) ).sub( edge.mul( 0.08 ) );
+	let rough = float( 0.15 ).add( dirt.mul( 0.26 ) ).add( streak.mul( 0.1 ) ).add( leaf.abs().mul( 0.05 ) ).sub( edge.mul( 0.07 ) );
 	rough = mix( rough, rough.mul( 0.65 ), region.mul( 1.0 ).add( polish ).clamp() );
 
 	m.colorNode = col;
@@ -362,7 +362,7 @@ export function foliageMaterial( atlas, { cell = [ 0, 0 ], tint = 1, windNode = 
 	const tex = texture( atlas, uv().mul( 0.5 ).add( off ) );
 	const inst = attribute( 'leafTint', 'float' );
 	const hue = mix( vec3( 1.08, 1.02, 0.8 ), vec3( 0.88, 0.97, 1.02 ), inst );
-	m.colorNode = tex.rgb.mul( hue ).mul( tint );
+	m.colorNode = tex.rgb.mul( hue ).mul( tint ).mul( 0.78 );
 	m.opacityNode = tex.a;
 	m.alphaTest = 0.45;
 	m.side = THREE.DoubleSide;

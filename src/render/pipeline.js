@@ -28,14 +28,14 @@ export class Pipeline {
 		this.dofRange = uniform( 60 ); // distance from the focal plane to full blur, metres
 		this.bokeh = uniform( 1.6 );
 		this.exposure = uniform( 1.0 );
-		this.bloomStrength = uniform( 0.12 );
-		this.bloomThreshold = uniform( 1.6 );
+		this.bloomStrength = uniform( 0.05 );
+		this.bloomThreshold = uniform( 2.6 );
 		this.aoStrength = uniform( 0.65 );
-		this.caStrength = uniform( 0.35 );
+		this.caStrength = uniform( 0.15 );
 		this.vignette = uniform( 0.32 );
 		this.grain = uniform( 0.022 );
-		this.contrast = uniform( 1.06 );
-		this.saturation = uniform( 1.04 );
+		this.contrast = uniform( 1.12 );
+		this.saturation = uniform( 1.06 );
 		this.warmth = uniform( 0.012 );
 		this.fade = uniform( 0 ); // 1 = black (cuts / title card)
 
